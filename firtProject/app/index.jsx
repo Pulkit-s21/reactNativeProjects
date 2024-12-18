@@ -17,7 +17,13 @@ const app = () => {
         <Link style={{ marginHorizontal: "auto" }} href="/contact" asChild>
           {/* asChild is req to convert this link to btn and work */}
           <Pressable style={styles.button}>
-            <Text style={styles.buttonText}>Conact Us</Text>
+            <Text style={styles.buttonText}>Contact Us</Text>
+          </Pressable>
+        </Link>
+
+        <Link style={{ marginHorizontal: "auto" }} href="/menu" asChild>
+          <Pressable style={styles.button}>
+            <Text style={styles.buttonText}>Menu</Text>
           </Pressable>
         </Link>
       </ImageBackground>

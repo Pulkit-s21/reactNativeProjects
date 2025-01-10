@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.95)",
     padding: 6,
     justifyContent: "center",
+    marginVertical: 10,
   },
   buttonText: {
     color: "lightblue",

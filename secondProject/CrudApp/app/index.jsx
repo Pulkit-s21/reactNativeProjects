@@ -32,7 +32,7 @@ export default function Index() {
       try {
         const jsonValue = await AsyncStorage.getItem("TodoApp")
         const storageTodos = jsonValue != null ? JSON.parse(jsonValue) : null
-        if (storageTodos && storageTodos.length > 0) {
+        if (storageTodos && storageTodos.length) {
           setTodos(storageTodos.sort((a, b) => b.id - a.id))
         } else {
           setTodos(data.sort((a, b) => b.id - a.id))
@@ -59,6 +59,7 @@ export default function Index() {
     storeData()
   }, [todos])
 
+  // keep this at end
   if (!loaded && !error) {
     return null
   }
@@ -247,6 +248,7 @@ function createStyles(theme, colorScheme) {
       paddingLeft: 10,
       paddingRight: 5,
       flexGrow: 1,
+      flexWrap: "wrap",
       fontFamily: "Inter_500Medium",
       color: colorScheme === "dark" ? "white" : "black",
     },

@@ -1,27 +1,67 @@
 import {
   Text,
-  Appearance,
   View,
-  FlatList,
   StyleSheet,
   TextInput,
-  Pressable,
   TouchableOpacity,
 } from "react-native"
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"
+import Octicons from "@expo/vector-icons/Octicons"
+import Animated, { LinearTransition } from "react-native-reanimated"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Colors } from "@/constants/Colors"
 import { data } from "@/data/todos"
-import { useState } from "react"
+import { useState, useContext, useEffect } from "react"
 import { Vibration } from "react-native"
+import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter"
+import { ThemeContext } from "@/context/ThemeContext"
+import { StatusBar } from "expo-status-bar"
+import { useRouter } from "expo-router"
 
 export default function Index() {
-  const colorScheme = Appearance.getColorScheme()
-  const theme = colorScheme === "dark" ? Colors.dark : Colors.light
+  const { colorScheme, setColorScheme, theme } = useContext(ThemeContext)
   const styles = createStyles(theme, colorScheme)
-
-  const [todos, setTodos] = useState(data.sort((a, b) => b.id - a.id))
+  const [todos, setTodos] = useState([])
   const [text, setText] = useState("")
+  const [loaded, error] = useFonts({ Inter_500Medium })
+  const router = useRouter()
+
+  // this fetchs data from localStorage or constant list
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem("TodoApp")
+        const storageTodos = jsonValue != null ? JSON.parse(jsonValue) : null
+        if (storageTodos && storageTodos.length > 0) {
+          setTodos(storageTodos.sort((a, b) => b.id - a.id))
+        } else {
+          setTodos(data.sort((a, b) => b.id - a.id))
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    fetchData()
+  }, [data])
+
+  // this stores data in localStorage
+  useEffect(() => {
+    const storeData = async () => {
+      try {
+        const jsonValue = JSON.stringify(todos)
+        await AsyncStorage.setItem("TodoApp", jsonValue) // make sure the variable name is same as in like 29
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    storeData()
+  }, [todos])
+
+  if (!loaded && !error) {
+    return null
+  }
 
   const createTask = () => {
     if (text.trim()) {
@@ -48,12 +88,17 @@ export default function Index() {
     setTodos(todos.filter((todo) => todo.id !== id)) // whichever task doesnt match with current id set the list to those (remove the matching one)
   }
 
+  const handlePress = (id) => {
+    router.push(`/todos/${id}`)
+  }
+
   const renderItem = ({ item }) => (
     <View style={styles.row}>
       <TouchableOpacity
-        onPress={() => {
-          toggleTask(item.id)
+        onPress={() => handlePress(item.id)}
+        onLongPress={() => {
           Vibration.vibrate(120)
+          toggleTask(item.id)
         }}
         style={{ flex: 1 }}
       >
@@ -61,6 +106,7 @@ export default function Index() {
           {item.title}
         </Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         onPress={() => {
           Vibration.vibrate(300)
@@ -94,6 +140,7 @@ export default function Index() {
           style={{
             flex: 1,
             fontSize: 15,
+            fontFamily: "Inter_500Medium",
             borderWidth: 1,
             color: "white",
             borderColor: "gray",
@@ -112,12 +159,39 @@ export default function Index() {
         >
           <Text style={styles.addBtnText}>Add</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            Vibration.vibrate(100)
+            setColorScheme(colorScheme === "dark" ? "light" : "dark")
+          }}
+          style={{ marginLeft: 10 }}
+        >
+          {colorScheme === "dark" ? (
+            <Octicons
+              name="moon"
+              size={36}
+              selectable={undefined}
+              color={theme.icon}
+              style={{ width: 36 }}
+            />
+          ) : (
+            <Octicons
+              name="sun"
+              size={36}
+              selectable={undefined}
+              color={theme.icon}
+              style={{ width: 36 }}
+            />
+          )}
+        </TouchableOpacity>
       </View>
-      <FlatList
+      <Animated.FlatList
         data={todos}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.container}
         ItemSeparatorComponent={<View style={styles.separator} />}
+        itemLayoutAnimation={LinearTransition}
+        keyboardDismissMode="on-drag" // hides keyboard when user drags list
         ListEmptyComponent={
           <Text
             style={{
@@ -131,20 +205,10 @@ export default function Index() {
             No Task To Track
           </Text>
         }
-        ListFooterComponent={
-          <Text
-            style={{
-              color: "white",
-              fontSize: 25,
-              textAlign: "center",
-              marginVertical: 10,
-            }}
-          >
-            End of the list
-          </Text>
-        }
         renderItem={renderItem}
       />
+      {/* imp to show the status bar..not visible without it */}
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
     </SafeAreaView>
   )
 }
@@ -171,6 +235,7 @@ function createStyles(theme, colorScheme) {
       height: 0.5,
       backgroundColor: colorScheme === "dark" ? "papayawhip" : "#000",
       width: "100%",
+      maxWidth: 1024,
       marginHorizontal: "auto",
       marginBottom: 10,
     },
@@ -182,6 +247,7 @@ function createStyles(theme, colorScheme) {
       paddingLeft: 10,
       paddingRight: 5,
       flexGrow: 1,
+      fontFamily: "Inter_500Medium",
       color: colorScheme === "dark" ? "white" : "black",
     },
     addBtn: {

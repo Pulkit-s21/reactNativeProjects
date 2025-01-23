@@ -19,7 +19,9 @@ const CustomButton = ({
       }}
       activeOpacity={0.7}
     >
-      <Text className={`text-primary text-xl font-psemibold ${textStyle}`}>
+      <Text
+        className={`text-primary text-xl font-psemibold ${textStyle} text-white`}
+      >
         {title}
       </Text>
     </TouchableOpacity>

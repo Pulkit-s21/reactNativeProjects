@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity, Vibration } from "react-native"
 
-const CustomButton = ({
+export const CustomButton = ({
   title,
   handlePress,
   containerStyle,
@@ -27,5 +27,3 @@ const CustomButton = ({
     </TouchableOpacity>
   )
 }
-
-export default CustomButton

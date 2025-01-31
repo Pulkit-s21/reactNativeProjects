@@ -1,3 +1,4 @@
+import { StatusBar } from "expo-status-bar"
 import { View, ScrollView } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 
@@ -9,6 +10,7 @@ const CustomContainer = ({ containerStyle, children }) => {
           {children}
         </View>
       </ScrollView>
+      <StatusBar style="light" />
     </SafeAreaView>
   )
 }

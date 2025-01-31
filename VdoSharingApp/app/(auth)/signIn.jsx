@@ -1,18 +1,45 @@
-import { View, Text, Image, TouchableOpacity, Vibration } from "react-native"
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Vibration,
+  Alert,
+} from "react-native"
 import { images } from "../../constants"
 import { router } from "expo-router"
 import { useState } from "react"
-import CustomButton from "@/components/CustomButton"
+import { signIn } from "@/lib/appwrite"
+import { CustomButton } from "@/components/CustomButton"
 import CustomTextInput from "@/components/CustomTextInput"
 import CustomContainer from "@/components/CustomContainer"
+import { useGlobalContext } from "@/context/GlobalProvider"
 
 const SignIn = () => {
+  const { setUser, setIsLoggedIn } = useGlobalContext()
   const [signInData, setSignInData] = useState({
     email: "",
     password: "",
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [isSubmitting, setisSubmitting] = useState(false)
+  const submit = async () => {
+    if (!signInData.email || !signInData.password) {
+      Alert.alert("Error", "Please fill in all the details")
+    }
+    setIsSubmitting(true)
+    try {
+      await signIn(signInData.email, signInData.password)
+      // setting it to global state
+      setIsLoggedIn(true)
+      router.replace("/home")
+    } catch (err) {
+      Alert.alert("Error", err.message)
+      setIsSubmitting(false)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <CustomContainer>
@@ -48,7 +75,7 @@ const SignIn = () => {
         </TouchableOpacity>
         <CustomButton
           title={"Log In"}
-          handlePress={() => {}}
+          handlePress={submit}
           containerStyle={"w-full mt-7"}
           isLoading={isSubmitting} // bcz this action will take some time
         />

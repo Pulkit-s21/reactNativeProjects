@@ -1,17 +1,53 @@
-import { View, Text, Image, TouchableOpacity, Vibration } from "react-native"
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Vibration,
+  Alert,
+} from "react-native"
 import { images } from "../../constants"
 import { router } from "expo-router"
 import { useState } from "react"
+import { createUser } from "../../lib/appwrite"
+import { CustomButton } from "@/components/CustomButton"
 import CustomTextInput from "@/components/CustomTextInput"
-import CustomButton from "@/components/CustomButton"
 import CustomContainer from "@/components/CustomContainer"
 
 const SignUp = () => {
+  const { setUser, setIsLoggedIn } = useGlobalContext()
   const [signUpData, setSignUpData] = useState({
     username: "",
     email: "",
     password: "",
   })
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // parameters need to be exactly the same as in appwrite or else they give error
+  const submit = async () => {
+    if (!signUpData.username || !signUpData.email || !signUpData.password) {
+      Alert.alert("Error", "Please fill in all the details")
+    }
+    setIsSubmitting(true)
+    try {
+      const result = await createUser(
+        signUpData.email,
+        signUpData.password,
+        signUpData.username
+      )
+      //setting it to global state..
+      setUser(result)
+      setIsLoggedIn(true)
+
+      router.replace("/home")
+    } catch (err) {
+      Alert.alert("Error", err.message)
+      setIsSubmitting(false)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <CustomContainer>
@@ -41,7 +77,12 @@ const SignUp = () => {
           type={"password"}
           handleChange={(e) => setSignUpData({ ...signUpData, password: e })}
         />
-        <CustomButton title={"Sing Up"} handlePress={() => {}} />
+        <CustomButton
+          title={"Sign Up"}
+          handlePress={submit}
+          containerStyle={"w-full mt-7"}
+          isLoading={isSubmitting} // bcz this action will take some time
+        />
         <View className="flex-row justify-center">
           <Text className="text-gray-100">Already have an account? </Text>
           <TouchableOpacity

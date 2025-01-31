@@ -1,12 +1,14 @@
 import { Text, View, Image } from "react-native"
-import { StatusBar } from "expo-status-bar"
 import { images } from "../constants"
 import { Redirect, router } from "expo-router"
-import "react-native-reanimated"
-import CustomButton from "@/components/CustomButton"
+import { useGlobalContext } from "@/context/GlobalProvider"
+import { CustomButton } from "@/components/CustomButton"
 import CustomContainer from "@/components/CustomContainer"
 
 const App = () => {
+  const { isLoading, isLoggedIn } = useGlobalContext() // checking if user is logged in or not
+
+  if (!isLoading && isLoggedIn) return <Redirect href={"/home"} />
   return (
     <CustomContainer containerStyle={"items-center"}>
       <Image source={images.logo} resizeMode="contain" className="w-32 h-20" />
@@ -14,7 +16,7 @@ const App = () => {
       <Image
         source={images.cards}
         resizeMode="contain"
-        className="w-full h-96"
+        className="max-w-96 h-96"
       />
 
       {/* heading view (div)..relative for placing line below Aora */}
@@ -43,7 +45,6 @@ const App = () => {
         }}
         containerStyle={"w-full mt-7"}
       />
-      <StatusBar style="light" />
     </CustomContainer>
   )
 }

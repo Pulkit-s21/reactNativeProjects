@@ -92,3 +92,16 @@ export const getCurrentUser = async () => {
     console.error(err)
   }
 }
+
+// fetch all posts
+export const getAllPosts = async () => {
+  try {
+    const posts = await databases.listDocuments(
+      config.databaseId,
+      config.videosCollectionId
+    )
+    return posts.documents
+  } catch (err) {
+    console.error(err)
+  }
+}

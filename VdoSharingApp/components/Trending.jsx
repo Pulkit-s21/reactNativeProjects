@@ -1,9 +1,16 @@
-import { View, Text } from "react-native"
+import { View, Text, FlatList } from "react-native"
 
-export const Trending = () => {
+export const Trending = ({ posts }) => {
+  const renderItem = ({ item }) => {
+    return <Text className="text-3xl text-white">{item.id}</Text>
+  }
+
   return (
-    <View>
-      <Text>Trending</Text>
-    </View>
+    <FlatList
+      data={posts}
+      keyExtractor={(item) => item.id}
+      renderItem={renderItem}
+      horizontal
+    />
   )
 }

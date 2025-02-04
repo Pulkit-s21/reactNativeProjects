@@ -1,8 +1,6 @@
 import { icons } from "@/constants"
 import { useState } from "react"
 import {
-  View,
-  Text,
   FlatList,
   TouchableOpacity,
   ImageBackground,
@@ -77,7 +75,7 @@ export const Trending = ({ posts }) => {
       )}
       onViewableItemsChanged={viewableItemsChanged}
       viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
-      contentOffset={{ x: 170 }}
+      // contentOffset={{ x: 0 }}
       horizontal
     />
   )

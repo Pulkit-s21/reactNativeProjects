@@ -1,9 +1,12 @@
-import { View, Text } from 'react-native'
+import { View, Text } from "react-native"
 
-export const InfoBox = () => {
+export const InfoBox = ({ title, subTitle, containerStyles, titleStyles }) => {
   return (
-    <View>
-      <Text>InfoBox</Text>
+    <View className={containerStyles}>
+      <Text className={`${titleStyles} text-white font-psemibold text-center`}>
+        {title}
+      </Text>
+      <Text className={`text-gray-100 font-pregular text-sm`}>{subTitle}</Text>
     </View>
   )
 }

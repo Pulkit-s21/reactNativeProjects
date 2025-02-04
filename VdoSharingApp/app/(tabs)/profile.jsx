@@ -2,7 +2,7 @@ import { EmptyComponent } from "@/components/EmptyComponent"
 import { useAppwrite } from "@/lib/useAppwrite"
 import { FlatList, Text, View, Image, TouchableOpacity } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { getUserPosts } from "@/lib/appwrite"
+import { getUserPosts, signOut } from "@/lib/appwrite"
 import { useEffect } from "react"
 import { StatusBar } from "expo-status-bar"
 import { SearchInput } from "@/components/SearchInput"
@@ -10,6 +10,7 @@ import { VideoCard } from "@/components/VideoCard"
 import { useGlobalContext } from "@/context/GlobalProvider"
 import { icons } from "@/constants"
 import { InfoBox } from "@/components/InfoBox"
+import { router } from "expo-router"
 
 const Profile = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext()
@@ -19,11 +20,20 @@ const Profile = () => {
   const headerComponent = () => {
     return (
       <View className="w-full justify-center items-center mb-12 mt-6 px-4">
-        <TouchableOpacity className="w-full items-end mb-10" onPress={() => {}}>
+        <TouchableOpacity
+          className="w-full items-end mb-10"
+          onPress={async () => {
+            await signOut()
+            setUser(null)
+            setIsLoggedIn(false)
+
+            router.replace("/signIn")
+          }}
+        >
           <Image
             source={icons.logout}
             resizeMode="contain"
-            className="w-6 h-6"
+            className="w-7 h-7"
           />
         </TouchableOpacity>
         <View className="w-16 h-16 border border-secondary rounded-lg justify-center items-center">
@@ -40,16 +50,12 @@ const Profile = () => {
         />
         <View className="mt-5 flex-row">
           <InfoBox
-            title={posts.length || 0}
+            title={3}
             subTitle="Posts"
             containerStyles="mr-10"
-            titleStyles="text-xl"
+            titleStyles="text-2xl"
           />
-          <InfoBox
-            title="1.2K"
-            subTitle="Followers"
-            titleStyles="text-xl"
-          />
+          <InfoBox title="1.2K" subTitle="Followers" titleStyles="text-2xl" />
         </View>
       </View>
     )

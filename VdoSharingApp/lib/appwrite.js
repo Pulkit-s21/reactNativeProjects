@@ -74,6 +74,16 @@ export const signIn = async (email, password) => {
   }
 }
 
+// Sign Out
+export const signOut = async () => {
+  try {
+    const session = await account.deleteSession("current")
+    return session
+  } catch (err) {
+    throw new Error(err)
+  }
+}
+
 // fetch current user
 export const getCurrentUser = async () => {
   try {
@@ -140,7 +150,8 @@ export const getUserPosts = async (userId) => {
     const userPosts = await databases.listDocuments(
       config.databaseId,
       config.videosCollectionId,
-      [Query.search("creator", userId)]
+      // [Query.search("creator", userId)] Appwrite does not support full-text search on relationships.
+      [Query.equal("creator", userId)] // Change it to filter by the related document's ID
     )
 
     return userPosts.documents // * important

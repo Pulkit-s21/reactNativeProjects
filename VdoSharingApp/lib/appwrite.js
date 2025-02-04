@@ -7,6 +7,7 @@ import {
   Databases,
   Query,
 } from "react-native-appwrite"
+
 export const config = {
   endpoint: "https://cloud.appwrite.io/v1",
   platform: "com.killer.VideoSharing",
@@ -101,6 +102,48 @@ export const getAllPosts = async () => {
       config.videosCollectionId
     )
     return posts.documents
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const getLatestPosts = async () => {
+  try {
+    const latestPosts = await databases.listDocuments(
+      config.databaseId,
+      config.videosCollectionId,
+      [Query.orderDesc("$createdAt", Query.limit(7))]
+    )
+
+    return latestPosts.documents // * important
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const searchPosts = async (query) => {
+  try {
+    const posts = await databases.listDocuments(
+      config.databaseId,
+      config.videosCollectionId,
+      [Query.search("title", query)]
+    )
+
+    return posts.documents // * important
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const getUserPosts = async (userId) => {
+  try {
+    const userPosts = await databases.listDocuments(
+      config.databaseId,
+      config.videosCollectionId,
+      [Query.search("creator", userId)]
+    )
+
+    return userPosts.documents // * important
   } catch (err) {
     console.error(err)
   }

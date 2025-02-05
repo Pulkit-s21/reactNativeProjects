@@ -10,9 +10,8 @@ import {
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { getUserPosts, signOut } from "@/lib/appwrite"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { StatusBar } from "expo-status-bar"
-import { SearchInput } from "@/components/SearchInput"
 import { VideoCard } from "@/components/VideoCard"
 import { useGlobalContext } from "@/context/GlobalProvider"
 import { icons } from "@/constants"
@@ -87,7 +86,7 @@ const Profile = () => {
         ListEmptyComponent={
           <EmptyComponent
             title={"No videos found"}
-            subTitle={`No videos were uploaded by ${user?.$id} user`}
+            subTitle={`No videos were uploaded by ${user?.username} user`}
           />
         }
         refreshControl={

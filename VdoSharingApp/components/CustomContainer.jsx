@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 const CustomContainer = ({ containerStyle, children }) => {
   return (
     <SafeAreaView className="bg-primary h-full px-6">
-      <ScrollView contentContainerStyle={{ height: "100%" }}>
+      <ScrollView>
         <View className={`h-[85vh] justify-center ${containerStyle}`}>
           {children}
         </View>

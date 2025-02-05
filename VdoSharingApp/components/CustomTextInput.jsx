@@ -9,17 +9,24 @@ import {
 } from "react-native"
 import { icons } from "../constants"
 
-const CustomTextInput = ({ placeHolder, label, value, handleChange, type }) => {
+const CustomTextInput = ({
+  placeHolder,
+  label,
+  value,
+  handleChange,
+  type,
+  className,
+}) => {
   const [showPswrd, setShowPswrd] = useState(false)
 
   return (
-    <View className="gap-2">
-      <Text className="text-gray-200 text-xl font-pmedium">{label}</Text>
+    <View className={`gap-2 ${className}`}>
+      <Text className="text-gray-100 text-xl font-pmedium">{label}</Text>
       <View className="border-2 border-black-200 flex-row rounded-2xl w-full bg-black-100 items-center p-2 focus:border-secondary">
         <TextInput
           placeholder={placeHolder}
           placeholderTextColor="gray"
-          className="flex-1 text-secondary-200 font-psemibold text-lg"
+          className={`flex-1 text-secondary-200 font-psemibold text-lg`}
           autoComplete="off"
           onChangeText={handleChange}
           value={value}

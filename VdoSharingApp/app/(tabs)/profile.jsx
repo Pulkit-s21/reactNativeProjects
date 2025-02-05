@@ -1,9 +1,16 @@
 import { EmptyComponent } from "@/components/EmptyComponent"
 import { useAppwrite } from "@/lib/useAppwrite"
-import { FlatList, Text, View, Image, TouchableOpacity } from "react-native"
+import {
+  FlatList,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  RefreshControl,
+} from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { getUserPosts, signOut } from "@/lib/appwrite"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { StatusBar } from "expo-status-bar"
 import { SearchInput } from "@/components/SearchInput"
 import { VideoCard } from "@/components/VideoCard"
@@ -14,8 +21,16 @@ import { router } from "expo-router"
 
 const Profile = () => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext()
-  const { data: posts } = useAppwrite(() => getUserPosts(user.$id))
+  const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id))
   // * if we send useAppwrite(searchPosts(query)) then in useAppwrite fn is replaced by searchPosts(query) making it searchPosts(query)() which is like calling an object func which is wrong..so for these cases we have to send it thru callBack func
+
+  const [refreshing, setRefreshing] = useState(false)
+
+  const onRefresh = async () => {
+    setRefreshing(true)
+    await refetch()
+    setRefreshing(false)
+  }
 
   const headerComponent = () => {
     return (
@@ -36,26 +51,27 @@ const Profile = () => {
             className="w-7 h-7"
           />
         </TouchableOpacity>
-        <View className="w-16 h-16 border border-secondary rounded-lg justify-center items-center">
+        <View className="flex-row gap-4">
           <Image
             source={{ uri: user?.avatar }}
-            className="w-[90%] h-[90%] rounded-lg"
+            className="w-16 rounded-lg border border-secondary"
             resizeMode="cover"
           />
-        </View>
-        <InfoBox
-          title={user?.username}
-          containerStyles="mt-5"
-          titleStyles="text-lg"
-        />
-        <View className="mt-5 flex-row">
-          <InfoBox
-            title={3}
-            subTitle="Posts"
-            containerStyles="mr-10"
-            titleStyles="text-2xl"
-          />
-          <InfoBox title="1.2K" subTitle="Followers" titleStyles="text-2xl" />
+          <View className="flex-col flex-1 gap-2 justify-center items-start">
+            <Text className="text-white text-2xl font-psemibold">
+              {user?.username}
+            </Text>
+            <Text className="text-gray-100 text-sm">{user?.email}</Text>
+          </View>
+          <View className="mt-5 flex-row items-start">
+            <InfoBox
+              title={3}
+              subTitle="Posts"
+              containerStyles="mr-10"
+              titleStyles="text-2xl"
+            />
+            <InfoBox title="1.2K" subTitle="Followers" titleStyles="text-2xl" />
+          </View>
         </View>
       </View>
     )
@@ -71,8 +87,11 @@ const Profile = () => {
         ListEmptyComponent={
           <EmptyComponent
             title={"No videos found"}
-            subTitle={`No videos were uploaded by ${user.$id} user`}
+            subTitle={`No videos were uploaded by ${user?.$id} user`}
           />
+        }
+        refreshControl={
+          <RefreshControl onRefresh={onRefresh} refreshing={refreshing} />
         }
       />
       <StatusBar style="light" />

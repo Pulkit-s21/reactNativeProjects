@@ -6,6 +6,7 @@ import {
   Avatars,
   Databases,
   Query,
+  Storage,
 } from "react-native-appwrite"
 
 export const config = {
@@ -28,8 +29,11 @@ client
 const account = new Account(client)
 const avatars = new Avatars(client)
 const databases = new Databases(client)
+const storage = new Storage(client)
 
 // parameters need to be exactly the same as in appwrite or else they give error
+
+// Sign Up
 export const createUser = async (email, password, username) => {
   try {
     const newAccount = await account.create(
@@ -109,7 +113,8 @@ export const getAllPosts = async () => {
   try {
     const posts = await databases.listDocuments(
       config.databaseId,
-      config.videosCollectionId
+      config.videosCollectionId,
+      [Query.orderDesc("$createdAt")]
     )
     return posts.documents
   } catch (err) {
@@ -151,11 +156,88 @@ export const getUserPosts = async (userId) => {
       config.databaseId,
       config.videosCollectionId,
       // [Query.search("creator", userId)] Appwrite does not support full-text search on relationships.
-      [Query.equal("creator", userId)] // Change it to filter by the related document's ID
+      [Query.equal("creator", userId), Query.orderDesc("$createdAt")] // Change it to filter by the related document's ID
     )
 
     return userPosts.documents // * important
   } catch (err) {
     console.error(err)
+  }
+}
+
+export const getFilePreview = async (fileId, type) => {
+  let fileUrl
+
+  try {
+    if (type === "video") {
+      fileUrl = storage.getFileView(config.storageId, fileId)
+    } else if (type === "image") {
+      fileUrl = storage.getFilePreview(
+        config.storageId,
+        fileId,
+        2000,
+        2000,
+        "top",
+        100
+      ) // check getFilePreview for required params
+    } else {
+      throw new Error("Invalid file type")
+    }
+
+    if (!fileUrl) throw Error
+
+    return fileUrl
+  } catch (err) {
+    throw new Error(err)
+  }
+}
+
+export const uploadFile = async (file, type) => {
+  if (!file) return
+
+  const asset = {
+    name: file.fileName,
+    type: file.mimeType,
+    size: file.fileSize,
+    uri: file.uri,
+  }
+  try {
+    const uploadedFile = await storage.createFile(
+      config.storageId,
+      ID.unique(),
+      asset
+    )
+
+    const fileUrl = await getFilePreview(uploadedFile.$id, type)
+    console.log(object)
+    return fileUrl
+  } catch (err) {
+    throw new Error(err)
+  }
+}
+
+export const createPost = async (form) => {
+  try {
+    const [thumbnailUrl, videoUrl] = await Promise.all([
+      uploadFile(form.thumbnail, "image"),
+      uploadFile(form.video, "video"),
+    ])
+
+    const newPost = await databases.createDocument(
+      config.databaseId,
+      config.videosCollectionId,
+      ID.unique(),
+      {
+        title: form.title,
+        thumbnail: thumbnailUrl,
+        video: videoUrl,
+        prompt: form.prompt,
+        creator: form.userId,
+      }
+    )
+
+    return newPost
+  } catch (err) {
+    throw new Error(err)
   }
 }

@@ -9,7 +9,7 @@ import {
 import { images } from "../../constants"
 import { router } from "expo-router"
 import { useState } from "react"
-import { signIn } from "@/lib/appwrite"
+import { getCurrentUser, signIn } from "@/lib/appwrite"
 import { CustomButton } from "@/components/CustomButton"
 import CustomTextInput from "@/components/CustomTextInput"
 import CustomContainer from "@/components/CustomContainer"
@@ -31,7 +31,11 @@ const SignIn = () => {
     try {
       await signIn(signInData.email, signInData.password)
       // setting it to global state
+
+      const result = await getCurrentUser()
+      setUser(result)
       setIsLoggedIn(true)
+
       router.replace("/home")
     } catch (err) {
       Alert.alert("Error", err.message)

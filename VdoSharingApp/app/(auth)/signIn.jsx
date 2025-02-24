@@ -67,7 +67,6 @@ const SignIn = () => {
           type={"password"}
           handleChange={(e) => setSignInData({ ...signInData, password: e })}
         />
-        {/* TODO: Add functionality */}
         <TouchableOpacity
           onPress={() => {
             Vibration.vibrate(100)
